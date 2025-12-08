@@ -1,9 +1,10 @@
 import { Router } from "express"
 import { UserController } from "./user.controller"
+import auth from "../../middleware/auth"
 
 const router = Router()
 
-router.get("/",UserController.AllUsers)
+router.get("/",auth(),UserController.AllUsers)
 
 router.put("/:userId",UserController.SingleUserUpdate)
 

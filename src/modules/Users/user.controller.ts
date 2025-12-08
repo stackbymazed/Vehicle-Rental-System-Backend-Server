@@ -23,7 +23,7 @@ const SingleUserUpdate = async (req: Request, res: Response) => {
         const result = await UserService.SingleUserUpdateService(req.body,req.params.userId!);
         res.status(200).json({
             success: true,
-            message: "Single user update successfully",
+            message: "User updated successfully",
             data: result
         })
 
@@ -40,8 +40,7 @@ const SingleUserDelete = async (req: Request, res: Response) => {
         const result = await UserService.SingleUserDeleteService(req.params.userId!);
         res.status(200).json({
             success: true,
-            message: "Single user Delete successfully",
-            data: result.rowCount
+            message: "User deleted successfully"
         })
 
     } catch (err: any) {

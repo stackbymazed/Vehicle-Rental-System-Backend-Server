@@ -8,6 +8,10 @@ const SignUpUser = async (data: any) => {
     const hashPassword = await bcrypt.hash(password as string, 12)
 
     const result = await pool.query(`INSERT INTO users(name,email,password,phone,role) VALUES($1,$2,$3,$4,$5) RETURNING *`, [name, email, hashPassword, phone, role]);
+
+    delete result.rows[0].password;
+    delete result.rows[0].created_at;
+    delete result.rows[0].updated_at;
     return result;
 }
 
@@ -27,16 +31,19 @@ const SignInUser = async (data: any) => {
     }
 
     const payload = {
-       id : result.rows[0].id,
-       name : result.rows[0].name,
-       email : result.rows[0].email
+        id: result.rows[0].id,
+        name: result.rows[0].name,
+        email: result.rows[0].email
     }
 
     const secret = config.Jwt_Secret
-    const token = jwt.sign(payload,secret!,{expiresIn:"7d"})
+    const token = jwt.sign(payload, secret!, { expiresIn: "7d" })
 
     delete result.rows[0].password;
-    return {token,result:result.rows[0]};
+    delete result.rows[0].created_at;
+    delete result.rows[0].updated_at;
+
+    return { token, user: result.rows[0] };
 }
 
 

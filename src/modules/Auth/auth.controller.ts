@@ -9,7 +9,7 @@ const SignUpUser = async (req: Request, res: Response) => {
         console.log(result);
         res.status(200).json({
             success: true,
-            message: "User created successfully",
+            message: "User registered successfully",
             data: result.rows[0]
         })
 
@@ -27,7 +27,7 @@ const SignInUser = async (req: Request, res: Response) => {
         const result = await AuthService.SignInUser(data);
         res.status(200).json({
             success: true,
-            message: "User SignIn successfully",
+            message: "Login successful",
             data: result
         })
 

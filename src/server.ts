@@ -11,7 +11,6 @@ app.use("/api/v1/auth",AuthRouter.router)
 
 app.use("/api/v1/users",UserRouter.router)
 
-
 app.use("/api/v1/bookings",BookingRouter.router)
 
 

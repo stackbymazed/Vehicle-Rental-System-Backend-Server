@@ -6,6 +6,8 @@ const router = Router()
 
 router.post("/",BookingController.CreateBooking)
 
+router.get("/",BookingController.AllBooking)
+
 export const BookingRouter  = {
     router,
 }
