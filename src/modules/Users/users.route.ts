@@ -3,8 +3,11 @@ import { UserController } from "./user.controller"
 
 const router = Router()
 
-router.post("/",UserController.createUser)
+router.get("/",UserController.AllUsers)
 
+router.put("/:userId",UserController.SingleUserUpdate)
+
+router.delete("/:userId",UserController.SingleUserDelete)
 
 
 

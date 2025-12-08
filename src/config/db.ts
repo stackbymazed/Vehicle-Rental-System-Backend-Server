@@ -7,20 +7,8 @@ export const pool = new Pool({
 
 
 export const initDB = async () => {
-    // await pool.query(`
-    //     CREATE TABLE IF NOT EXISTS users(
-    //         id SERIAL PRIMARY KEY,
-    //         name VARCHAR(100) NOT NULL,
-    //         email VARCHAR(100) UNIQUE NOT NULL,
-    //         age INT,
-    //         phone VARCHAR(15) ,
-    //         address TEXT,
-    //         created_at TIMESTAMP DEFAULT NOW(),
-    //         updated_at TIMESTAMP DEFAULT NOW()
-    //     )`)
-
     await pool.query(`
-        CREATE TABLE IF NOT EXISTS Users (
+        CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
             name VARCHAR(200) NOT NULL,
             email VARCHAR(100) NOT NULL UNIQUE,
@@ -33,10 +21,8 @@ export const initDB = async () => {
         );
     `);
 
-
-
     await pool.query(`
-       CREATE TABLE IF NOT EXISTS Vehicles (
+       CREATE TABLE IF NOT EXISTS vehicles (
         id SERIAL PRIMARY KEY,
         vehicle_name VARCHAR(200) NOT NULL,
         type VARCHAR(100) NOT NULL,
@@ -52,7 +38,7 @@ export const initDB = async () => {
     `)
 
     await pool.query(`
-        CREATE TABLE IF NOT EXISTS Bookings (
+        CREATE TABLE IF NOT EXISTS bookings (
         id SERIAL PRIMARY KEY,
         customer_id INTEGER NOT NULL,
         vehicle_id INTEGER NOT NULL,
@@ -79,17 +65,4 @@ export const initDB = async () => {
 
     `)
 
-
-    // await pool.query(`
-    //     CREATE TABLE IF NOT EXISTS  todos(
-    //     id SERIAL PRIMARY KEY,
-    //     user_id  INT REFERENCES users(id) ON DELETE CASCADE,
-    //     title VARCHAR(200) NOT NULL,
-    //     description TEXT,
-    //     completed BOOLEAN DEFAULT false,        
-    //     dua_date DATE,
-    //     created_at TIMESTAMP DEFAULT NOW(),
-    //     updated_at TIMESTAMP DEFAULT NOW()
-    //     )
-    //     `)
 }

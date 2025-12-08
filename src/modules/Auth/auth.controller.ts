@@ -1,12 +1,15 @@
 import { Request, Response } from "express";
+import { AuthService } from "./auth.service";
 
 const SignUpUser = async (req: Request, res: Response) => {
     const data = req.body;
+    console.log(data);
     try {
-        const result = await 
+        const result = await AuthService.SignUpUser(data);
+        console.log(result);
         res.status(200).json({
             success: true,
-            message: "Vehicle created successfully",
+            message: "User created successfully",
             data: result.rows[0]
         })
 
@@ -18,6 +21,6 @@ const SignUpUser = async (req: Request, res: Response) => {
     }
 }
 
-const AuthRouter = {
+export const AuthController = {
     SignUpUser,
 }

@@ -25,8 +25,8 @@ const AllVehicles = async (req: Request, res: Response) => {
         const result = await VehicleService.AllVehiclesService();
         res.status(200).json({
             success: true,
-            message: "Vehicle created successfully",
-            data: result.rows[0]
+            message: "All Vehicle found successfully",
+            data: result.rows
         })
 
     } catch (err: any) {
@@ -42,7 +42,7 @@ const SingleVehicle = async (req: Request, res: Response) => {
         const result = await VehicleService.SingleVehicleService(req.params.vehicleId!);
         res.status(200).json({
             success: true,
-            message: "Vehicle created successfully",
+            message: "Single Vehicle found successfully",
             data: result.rows[0]
         })
 
