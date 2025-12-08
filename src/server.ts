@@ -7,7 +7,7 @@ import { vehiclesRouter } from "./modules/Vehicles/vehicles.route"
 
 app.use("/api/v1/vehicles",vehiclesRouter.router)
 
-app.use("/api/v1/auth/signup",AuthRouter.router)
+app.use("/api/v1/auth",AuthRouter.router)
 
 app.use("/api/v1/users",UserRouter.router)
 

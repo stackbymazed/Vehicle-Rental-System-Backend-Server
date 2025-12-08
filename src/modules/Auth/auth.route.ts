@@ -3,7 +3,9 @@ import { AuthController } from "./auth.controller"
 
 const router = Router()
 
-router.post("/",AuthController.SignUpUser)
+router.post("/signup",AuthController.SignUpUser)
+
+router.post("/signin",AuthController.SignInUser)
 
 
 
