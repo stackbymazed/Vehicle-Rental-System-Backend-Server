@@ -1,163 +1,208 @@
-🚗 Vehicle Rental System – Backend API
-Live Server: https://assignment-2-azure-alpha.vercel.app/
+#  Vehicle Rental Management API
 
-A fully featured backend API for a Vehicle Rental Management System built with Node.js, TypeScript, Express.js, and PostgreSQL.
-This project follows a modular, feature-based architecture with clear separation of concerns (Routes → Controllers → Services → Database).
+A complete Node.js + Express + TypeScript + PostgreSQL backend for managing users, vehicles, and bookings with proper authentication, authorization, and business rules.
 
-✨ Features
-🔐 Authentication & Authorization
+---
 
-Secure Signup & Login with hashed passwords (bcrypt)
+## 🛠️ Tech Stack
+- Node.js
+- Express.js
+- TypeScript
+- PostgreSQL 
+- JWT Authentication
+- Bcrypt Password Hashing
 
-JWT-based authentication (Bearer <token>)
+---
 
-Role-based access control: Admin & Customer
+## 📦 Installation & Setup
 
-👥 User Management
+### 1️⃣ Clone the repository
+```bash
+git clone <repository-url>
+cd project-folder
+```
 
-Register, login & manage user profiles
-
-Admin can update/delete any user
-
-Customers can update only their own profile
-
-🚘 Vehicle Management
-
-Admin can add, update, delete vehicles
-
-Public can view all available vehicles
-
-Prevent deletion if active bookings exist
-
-📦 Booking System
-
-Create bookings with automatic:
-
-Date validation
-
-Price calculation
-
-Vehicle availability update
-
-Role-based booking viewing
-
-Cancel bookings (customer)
-
-Mark bookings returned (admin)
-
-🛠️ Technology Stack
-Layer	Technology
-Runtime	Node.js
-Language	TypeScript
-Framework	Express.js
-Database	PostgreSQL
-ORM/Query Tool	pg (or Prisma/Knex depending on your codebase)
-Auth	bcrypt, jsonwebtoken
-Architecture	Modular Feature-Based (auth, users, vehicles, bookings)
-📁 Project Structure (Feature-Based Modular Architecture)
-src/
- ├── config/
- │    └── db.ts
- ├── modules/
- │    ├── auth/
- │    │     ├── auth.routes.ts
- │    │     ├── auth.controller.ts
- │    │     └── auth.service.ts
- │    ├── users/
- │    │     ├── user.routes.ts
- │    │     ├── user.controller.ts
- │    │     └── user.service.ts
- │    ├── vehicles/
- │    │     ├── vehicle.routes.ts
- │    │     ├── vehicle.controller.ts
- │    │     └── vehicle.service.ts
- │    ├── bookings/
- │    │     ├── booking.routes.ts
- │    │     ├── booking.controller.ts
- │    │     └── booking.service.ts
- ├── middleware/
- │    ├── auth.middleware.ts
- │    └── role.middleware.ts
- ├── utils/
- │    └── helpers.ts
- ├── app.ts
- └── server.ts
-
-📊 Database Models
-Users
-Field	Description
-id	Auto-generated
-name	Required
-email	Unique, lowercase
-password	Hashed
-phone	Required
-role	'admin' or 'customer'
-Vehicles
-Field	Description
-vehicle_name	Required
-type	car / bike / van / SUV
-registration_number	Unique
-daily_rent_price	Positive
-availability_status	available / booked
-Bookings
-Field	Description
-customer_id	FK → Users
-vehicle_id	FK → Vehicles
-rent_start_date	Required
-rent_end_date	After start date
-total_price	Auto-calculated
-status	active / cancelled / returned
-🚀 Installation & Setup
-1. Clone the repository
-git clone <repo-url>
-cd vehicle-rental-system
-
-2. Install dependencies
+### 2️⃣ Install dependencies
+```bash
 npm install
+```
 
-3. Create .env file
-PORT=5000
-DATABASE_URL=postgresql://user:password@localhost:5432/vehiclerental
-JWT_SECRET=your_jwt_secret_key
+### 3️⃣ Create `.env` file
+```
+CONNECTION_STR=
+PORT=
+JWT_SECRET=
+```
 
-4. Run database migrations (if using SQL scripts/Prisma/Knex)
-
-(Adjust according to your implementation)
-
-5. Start development server
+### 4️⃣ Run the project
+```bash
 npm run dev
+```
 
-6. Build production
-npm run build
-npm start
+---
 
-🌐 API Endpoints
-🔐 Authentication
-Method	Endpoint	Access
-POST	/api/v1/auth/signup	Public
-POST	/api/v1/auth/signin	Public
-🚘 Vehicles
-Method	Endpoint	Access
-POST	/api/v1/vehicles	Admin
-GET	/api/v1/vehicles	Public
-GET	/api/v1/vehicles/:vehicleId	Public
-PUT	/api/v1/vehicles/:vehicleId	Admin
-DELETE	/api/v1/vehicles/:vehicleId	Admin
-👥 Users
-Method	Endpoint	Access
-GET	/api/v1/users	Admin
-PUT	/api/v1/users/:userId	Admin or Owner
-DELETE	/api/v1/users/:userId	Admin
-📦 Bookings
-Method	Endpoint	Access
-POST	/api/v1/bookings	Customer/Admin
-GET	/api/v1/bookings	Role-Based
-PUT	/api/v1/bookings/:bookingId	Role-Based
-🔐 Authorization Logic
-Role	Permissions
-Admin	Manage all vehicles, users, bookings
-Customer	Manage own bookings & profile
+## 🚀 API Endpoints
 
-JWT Required in:
+### 🔐 1. User Registration
+- **Access:** Public
+- **Description:** Register a new user account
+- **Endpoint:** POST `/api/v1/auth/signup`
 
-Authorization: Bearer <token>
+**Request Body:**
+```json
+{
+  "name": "John Doe",
+  "email": "john.doe@example.com",
+  "password": "securePassword123",
+  "phone": "01712345678",
+  "role": "customer"
+}
+```
+
+### 🔐 2. User Login
+- **Access:** Public
+- **Description:** Login and receive JWT token
+- **Endpoint:** POST `/api/v1/auth/signin`
+
+**Request Body:**
+```json
+{
+  "email": "john.doe@example.com",
+  "password": "securePassword123"
+}
+```
+
+---
+
+## 🚘 Vehicle Management
+
+### 3. Create Vehicle
+- **Access:** Admin only
+- **Description:** Add a new vehicle
+- **Endpoint:** POST `/api/v1/vehicles`
+- **Headers:** Authorization: Bearer `<jwt_token>`
+
+**Request Body:**
+```json
+{
+  "vehicle_name": "Toyota Camry 2024",
+  "type": "car",
+  "registration_number": "ABC-1234",
+  "daily_rent_price": 50,
+  "availability_status": "available"
+}
+```
+
+### 4. Get All Vehicles
+- **Access:** Public
+- **Endpoint:** GET `/api/v1/vehicles`
+
+### 5. Get Vehicle by ID
+- **Access:** Public
+- **Endpoint:** GET `/api/v1/vehicles/:vehicleId`
+
+### 6. Update Vehicle
+- **Access:** Admin only
+- **Endpoint:** PUT `/api/v1/vehicles/:vehicleId`
+- **Headers:** Authorization: Bearer `<jwt_token>`
+
+**Request Body:**
+```json
+{
+  "vehicle_name": "Toyota Camry 2024 Premium",
+  "type": "car",
+  "registration_number": "ABC-1234",
+  "daily_rent_price": 55,
+  "availability_status": "available"
+}
+```
+
+### 7. Delete Vehicle
+- **Access:** Admin only
+- **Condition:** Only if no active bookings exist
+- **Endpoint:** DELETE `/api/v1/vehicles/:vehicleId`
+- **Headers:** Authorization: Bearer `<jwt_token>`
+
+---
+
+## 👥 User Management
+
+### 8. Get All Users
+- **Access:** Admin only
+- **Endpoint:** GET `/api/v1/users`
+- **Headers:** Authorization: Bearer `<jwt_token>`
+
+### 9. Update User
+- **Access:** Admin or Own Profile
+- **Endpoint:** PUT `/api/v1/users/:userId`
+- **Headers:** Authorization: Bearer `<jwt_token>`
+
+**Request Body:**
+```json
+{
+  "name": "John Doe Updated",
+  "email": "john.updated@example.com",
+  "phone": "+1234567899",
+  "role": "admin"
+}
+```
+
+### 10. Delete User
+- **Access:** Admin only
+- **Condition:** Only if no active bookings exist
+- **Endpoint:** DELETE `/api/v1/users/:userId`
+- **Headers:** Authorization: Bearer `<jwt_token>`
+
+---
+
+## 📅 Booking Management
+
+### 11. Create Booking
+- **Access:** Customer or Admin
+- **Description:** Auto price calculation & update vehicle availability
+- **Endpoint:** POST `/api/v1/bookings`
+- **Headers:** Authorization: Bearer `<jwt_token>`
+
+**Request Body:**
+```json
+{
+  "customer_id": 1,
+  "vehicle_id": 2,
+  "rent_start_date": "2024-01-15",
+  "rent_end_date": "2024-01-20"
+}
+```
+
+### 12. Get All Bookings
+- **Access:** Admin → all bookings, Customer → own bookings only
+- **Endpoint:** GET `/api/v1/bookings`
+- **Headers:** Authorization: Bearer `<jwt_token>`
+
+### 13. Update Booking
+- **Access:** Role-based
+- **Endpoint:** PUT `/api/v1/bookings/:bookingId`
+- **Headers:** Authorization: Bearer `<jwt_token>`
+
+**Customer Cancellation:**
+```json
+{
+  "status": "cancelled"
+}
+```
+**Admin Mark as Returned:**
+```json
+{
+  "status": "returned"
+}
+```
+
+---
+
+## 📘 Summary
+This backend system supports:
+- User Authentication
+- Role-based Authorization
+- Vehicle CRUD Operations
+- Booking Management
+- Auto Rent Price Calculation
+- Admin-Controlled Operations
