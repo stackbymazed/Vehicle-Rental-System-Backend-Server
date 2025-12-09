@@ -5,7 +5,7 @@ import { Roles } from "../Auth/auth.constant";
 
 const router = Router()
 
-router.post("/", BookingController.CreateBooking)
+router.post("/",auth(Roles.admin, Roles.customer), BookingController.CreateBooking)
 
 router.get("/", auth(Roles.admin, Roles.customer), BookingController.AllBooking)
 

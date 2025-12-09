@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { VehicleService } from "./vehicles.service";
+import { JwtPayload } from "jsonwebtoken";
 
 const createVehicle = async (req: Request, res: Response) => {
     const data = req.body;
@@ -79,14 +80,16 @@ const updateSingleVehicle = async (req: Request, res: Response) => {
 }
 
 const DeleteSingleVehicle = async (req: Request, res: Response) => {
+    const user = req.user;
+    
     try {
-        const result = await VehicleService.DeleteSingleVehicleService(req.params.vehicleId!);
-        if (result.rows.length == 1) {
-            res.status(200).json({
-                success: true,
-                message: "Vehicle deleted successfully"
-            })
-        }
+        const result = await VehicleService.DeleteSingleVehicleService(req.params.vehicleId!,user as JwtPayload);
+        // if (result.rows.length == 1) {
+        //     res.status(200).json({
+        //         success: true,
+        //         message: "Vehicle deleted successfully"
+        //     })
+        // }
         res.status(200).json({
             success: true,
             message: "Vehicle Deleted data not found",

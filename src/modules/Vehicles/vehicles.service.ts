@@ -32,11 +32,24 @@ const UpdateSingleVehicleService = async (data: any, id: string) => {
     return result;
 }
 
-const DeleteSingleVehicleService = async (id: string) => {
-   
-    const result = await pool.query(`DELETE FROM vehicles WHERE id = $1 RETURNING *`, [id]);
-    
-    return result;
+const DeleteSingleVehicleService = async (id: string, user: any) => {
+    const { email, role } = user;
+    console.log(id);
+    const CheckStatus = await pool.query(`SELECT * FROM bookings WHERE vehicle_id = $1`, [id])
+    console.log(CheckStatus.rows);
+    for (let i = 0,let i < CheckStatus.rows, i++) {
+
+
+
+
+
+
+
+        
+    }
+    // const result = await pool.query(`DELETE FROM vehicles WHERE id = $1 RETURNING *`, [id]);
+
+    return [];
 }
 
 
