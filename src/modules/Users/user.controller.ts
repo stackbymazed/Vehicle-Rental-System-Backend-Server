@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { UserService } from "./user.service";
+import { JwtPayload } from "jsonwebtoken";
 
 const AllUsers = async (req: Request, res: Response) => {
     try {
@@ -19,8 +20,9 @@ const AllUsers = async (req: Request, res: Response) => {
 }
 
 const SingleUserUpdate = async (req: Request, res: Response) => {
+        const user = req.user
     try {
-        const result = await UserService.SingleUserUpdateService(req.body,req.params.userId!);
+        const result = await UserService.SingleUserUpdateService(req.body,req.params.userId!,user as JwtPayload);
         res.status(200).json({
             success: true,
             message: "User updated successfully",

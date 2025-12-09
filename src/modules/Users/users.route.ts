@@ -5,11 +5,11 @@ import { Roles } from "../Auth/auth.constant"
 
 const router = Router()
 
-router.get("/",auth(Roles.admin,Roles.customer),UserController.AllUsers)
+router.get("/",auth(Roles.admin),UserController.AllUsers)
 
-router.put("/:userId",UserController.SingleUserUpdate)
+router.put("/:userId",auth(Roles.admin,Roles.customer),UserController.SingleUserUpdate)
 
-router.delete("/:userId",UserController.SingleUserDelete)
+router.delete("/:userId",auth(Roles.admin),UserController.SingleUserDelete)
 
 
 

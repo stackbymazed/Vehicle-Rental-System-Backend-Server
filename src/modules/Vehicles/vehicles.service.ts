@@ -33,6 +33,7 @@ const UpdateSingleVehicleService = async (data: any, id: string) => {
 }
 
 const DeleteSingleVehicleService = async (id: string) => {
+   
     const result = await pool.query(`DELETE FROM vehicles WHERE id = $1 RETURNING *`, [id]);
     
     return result;

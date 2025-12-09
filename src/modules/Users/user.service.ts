@@ -1,3 +1,4 @@
+import { JwtPayload } from "jsonwebtoken";
 import { pool } from "../../config/db";
 
 const AllUserService = async () => {
@@ -8,11 +9,16 @@ const AllUserService = async () => {
     return result;
 }
 
-const SingleUserUpdateService = async (data: any, id: string) => {
+const SingleUserUpdateService = async (data: any, id: string, user: JwtPayload) => {
     const { name, email, password, phone, role } = data;
-    
-    const result = await pool.query(`UPDATE Users SET name = $1,email = $2,password = $3,phone = $4 'role' = $5 WHERE id = $6 RETURNING *`, [name, email, password, phone, role, id]);
-    return result;
+    const CurrentUserEmail = user.email;
+    const CheckCanUserPut = await pool.query(`SELECT * FROM users WHERE email = $1`, [CurrentUserEmail])
+    if (CheckCanUserPut.rows[0].id == id || CheckCanUserPut.rows[0].role == "admin") {
+        const result = await pool.query(`UPDATE Users SET name = $1,email = $2,password = $3,phone = $4 'role' = $5 WHERE id = $6 RETURNING *`, [name, email, password, phone, role, id]);
+        return result;
+    }else{
+         throw new Error("Unauthorized User!You Don,t put")
+    }
 }
 
 const SingleUserDeleteService = async (id: string) => {

@@ -1,12 +1,8 @@
+import { JwtPayload } from "jsonwebtoken";
 import { pool } from "../../config/db"
 import moment from "moment";
 
-const createBooking = async (
-    customer_id: number,
-    vehicle_id: number,
-    rent_start_date: Date,
-    rent_end_date: Date
-) => {
+const createBooking = async (customer_id: number, vehicle_id: number, rent_start_date: Date, rent_end_date: Date) => {
     try {
         // Fetch vehicle data
         const vehicleRes = await pool.query(
@@ -14,26 +10,25 @@ const createBooking = async (
             [vehicle_id]
         );
 
-        if (vehicleRes.rows[0].availability_status === "unavailable") {
+        if (vehicleRes.rows[0].availability_status === "booked") {
             throw new Error("Vehicle Is Already Booked");
         }
 
-        await pool.query(
-            `UPDATE vehicles SET availability_status = 'unavailable' WHERE id = $1`,
+        const UpdateVehicleStatus = await pool.query(
+            `UPDATE vehicles SET availability_status = 'booked' WHERE id = $1`,
             [vehicle_id]
         )
 
-        if (vehicleRes.rowCount === 0) {
+        if (UpdateVehicleStatus.rowCount === 0) {
             throw new Error("Vehicle not found");
         }
-
         const vehicle = vehicleRes.rows[0];
 
         // Update vehicle availability
-        await pool.query(
-            `UPDATE vehicles SET availability_status = 'unavailable' WHERE id = $1`,
-            [vehicle_id]
-        );
+        // await pool.query(
+        //     `UPDATE vehicles SET availability_status = 'unavailable' WHERE id = $1`,
+        //     [vehicle_id]
+        // );
 
         // Fetch customer data
         const customerRes = await pool.query(
@@ -47,7 +42,6 @@ const createBooking = async (
 
         const customer = customerRes.rows[0];
 
-        // Prepare JSON data
         const vehicleData = {
             vehicle_name: vehicle.vehicle_name,
             registration_number: vehicle.registration_number,
@@ -60,9 +54,20 @@ const createBooking = async (
             email: customer.email
         };
 
-        // Price calculation
-        const totalDay = moment(rent_end_date).diff(rent_start_date, "days");
+        const startDate = moment(rent_start_date);
+        const endDate = moment(rent_end_date);
+
+        // Calculate number of days
+        let totalDay = endDate.diff(startDate, "days");
+
+        // Ensure minimum 1 day
+        if (totalDay <= 0) {
+            throw new Error("rent_end_date must be after rent_start_date");
+        }
+
+        // Calculate total price
         const totalPrice = vehicle.daily_rent_price * totalDay;
+
 
         // Insert booking with JSON data
         const rental = await pool.query(
@@ -76,8 +81,8 @@ const createBooking = async (
                 rent_start_date,
                 rent_end_date,
                 totalPrice,
-                JSON.stringify(customerData), // FIXED
-                JSON.stringify(vehicleData)   // FIXED
+                customerData,
+                vehicleData
             ]
         );
 
@@ -86,11 +91,12 @@ const createBooking = async (
 
         // Remove fields before returning
         delete booking.customer;
-        const parsedVehicle = JSON.parse(booking.vehicle);
+        const parsedVehicle = booking.vehicle;
         delete parsedVehicle.availability_status;
         delete parsedVehicle.type;
         booking.vehicle = parsedVehicle;
-        console.log(booking);
+        delete booking.created_at
+        delete booking.updated_at
         return booking;
 
     } catch (error: any) {
@@ -99,8 +105,21 @@ const createBooking = async (
 };
 
 
-const AllBookingService = async () => {
-    const result = await pool.query(`SELECT * FROM bookings`)
+const AllBookingService = async (user: JwtPayload) => {
+    //token theke user
+    const CurrentUserRole = user.role;
+    const CurrentUserId = user.id;
+
+    //token user er users collection theke taa
+    // const CheckCanUserSee = await pool.query(`SELECT * FROM users WHERE email = $1`, [CurrentUserEmail])
+
+    if (CurrentUserRole == "admin") {
+        const result = await pool.query(`SELECT * FROM bookings`)
+        delete result.rows[0].created_at
+        delete result.rows[0].updated_at
+        return result;
+    }
+    const result = await pool.query(`SELECT * FROM bookings WHERE customer_id = $1`, [CurrentUserId])
 
     delete result.rows[0].created_at
     delete result.rows[0].updated_at
@@ -108,17 +127,18 @@ const AllBookingService = async () => {
 }
 
 
-const updateBookingById = async (bookingId: any, status: string, role: string) => {
-
-    if (status === "cancelled" && role === "admin") {
+const updateBookingService = async (bookingId: any, status: string, role: string) => {
+    console.log({bookingId,status,role});
+    if (status == "cancelled" && role == "admin") {
         throw new Error('Only can cancelled by customer')
     }
 
-    if (status === "returned" && role === "customer") {
+    if (status == "returned" && role == "customer") {
         throw new Error('Only can returned by admin')
     }
-
+    console.log("condition e dukbo");
     if (status === "cancelled" && role === "customer") {
+        console.log("customer e gece");
         const result = await pool.query(`UPDATE bookings SET status = $1 WHERE id = $2 RETURNING *`, [status, bookingId])
 
         await pool.query(`UPDATE vehicles SET availability_status = 'available' WHERE id = $1 RETURNING *`, [result.rows[0].vehicle_id])
@@ -126,12 +146,13 @@ const updateBookingById = async (bookingId: any, status: string, role: string) =
         delete result.rows[0].vehicle
         delete result.rows[0].customer
 
-        return result.rows[0]
+        return result
     }
-    else if (status === "returned" && role === "admin") {
+    else if(status === "returned" && role === "admin") {
+        console.log("admin kace gece");
         const findBookings = await pool.query(`SELECT * FROM bookings WHERE id = $1`, [bookingId])
 
-        const fullVehicle = JSON.parse(findBookings.rows[0].vehicle)
+        const fullVehicle = findBookings.rows[0].vehicle
         const data = {
             ...fullVehicle,
             availability_status: "available"
@@ -142,12 +163,9 @@ const updateBookingById = async (bookingId: any, status: string, role: string) =
         await pool.query(`UPDATE vehicles SET availability_status = 'available' WHERE id = $1 RETURNING *`, [result.rows[0].vehicle_id])
 
         delete result.rows[0].customer
-        const vehicleDataParse = result.rows[0].vehicle ? JSON.parse(result.rows[0].vehicle) : null;
-        result.rows[0].vehicle = vehicleDataParse
 
-        return await result.rows[0]
+        return await result;
     }
-    return []
 }
 
 
@@ -155,6 +173,6 @@ const updateBookingById = async (bookingId: any, status: string, role: string) =
 export const BookingService = {
     createBooking,
     AllBookingService,
-    updateBookingById
+    updateBookingService
 
 }
