@@ -84,12 +84,12 @@ const DeleteSingleVehicle = async (req: Request, res: Response) => {
     
     try {
         const result = await VehicleService.DeleteSingleVehicleService(req.params.vehicleId!,user as JwtPayload);
-        // if (result.rows.length == 1) {
-        //     res.status(200).json({
-        //         success: true,
-        //         message: "Vehicle deleted successfully"
-        //     })
-        // }
+        if (result.rows.length == 1) {
+            res.status(200).json({
+                success: true,
+                message: "Vehicle deleted successfully"
+            })
+        }
         res.status(200).json({
             success: true,
             message: "Vehicle Deleted data not found",

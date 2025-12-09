@@ -4,7 +4,7 @@ import config from "../config";
 import { pool } from "../config/db";
 
 const auth = (...roles: string[]) => {
-    console.log(roles);
+    // console.log(roles);
     return async (req: Request, res: Response, next: NextFunction) => {
         // const header = req.headers.authorization;
         const token = req.headers.authorization;
@@ -32,7 +32,7 @@ const auth = (...roles: string[]) => {
             throw new Error("User Not found !")
         }
         req.user = decoded;
-        console.log(decoded);
+        // console.log(decoded);
         const userRole = decoded.role?.trim(); // whitespace remove
 
         if (roles.length && !roles.includes(userRole)) {
