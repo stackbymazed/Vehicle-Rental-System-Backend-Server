@@ -128,16 +128,16 @@ const AllBookingService = async (user: JwtPayload) => {
 
 
 const updateBookingService = async (bookingId: any, status: string, role: string) => {
-    console.log({bookingId,status,role});
-    if (status == "cancelled" && role == "admin") {
-        throw new Error('Only can cancelled by customer')
+    // console.log({ bookingId, status, role });
+    if (status.trim() == "cancelled" && role.trim() == "admin") {
+        throw new Error('Only can cancelled by customer');
     }
 
-    if (status == "returned" && role == "customer") {
+    if (status.trim() == "returned" && role.trim() == "customer") {
         throw new Error('Only can returned by admin')
     }
-    console.log("condition e dukbo");
-    if (status === "cancelled" && role === "customer") {
+    // console.log("condition e dukbo");
+    if (status.trim() === "cancelled" && role.trim() === "customer") {
         console.log("customer e gece");
         const result = await pool.query(`UPDATE bookings SET status = $1 WHERE id = $2 RETURNING *`, [status, bookingId])
 
@@ -146,26 +146,31 @@ const updateBookingService = async (bookingId: any, status: string, role: string
         delete result.rows[0].vehicle
         delete result.rows[0].customer
 
-        return result
+        return result;
     }
-    else if(status === "returned" && role === "admin") {
+    else if (status.trim() == "returned" && role.trim() == "admin") {
         console.log("admin kace gece");
         const findBookings = await pool.query(`SELECT * FROM bookings WHERE id = $1`, [bookingId])
-
+        if (findBookings.rows.length == 0) {
+            throw new Error("ID not Match!")
+        }
+        console.log(findBookings);
         const fullVehicle = findBookings.rows[0].vehicle
-        const data = {
+        const data = await {
             ...fullVehicle,
             availability_status: "available"
         }
-
-        const result = await pool.query(`UPDATE bookings SET status = $1 , vehicle = $3 WHERE id = $2 RETURNING *`, [status, bookingId, data])
+        console.log(data);
+        const result = await pool.query(`UPDATE bookings SET status = $1 , vehicle = $2 WHERE id = $3 RETURNING *`, [status, data, bookingId])
 
         await pool.query(`UPDATE vehicles SET availability_status = 'available' WHERE id = $1 RETURNING *`, [result.rows[0].vehicle_id])
 
         delete result.rows[0].customer
+        console.log(result);
 
-        return await result;
+        return result;
     }
+    return []
 }
 
 
