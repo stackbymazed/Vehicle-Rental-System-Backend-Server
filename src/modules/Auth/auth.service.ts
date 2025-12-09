@@ -33,7 +33,8 @@ const SignInUser = async (data: any) => {
     const payload = {
         id: result.rows[0].id,
         name: result.rows[0].name,
-        email: result.rows[0].email
+        email: result.rows[0].email,
+        role: result.rows[0].role
     }
 
     const secret = config.Jwt_Secret
