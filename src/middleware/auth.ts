@@ -6,16 +6,16 @@ import { pool } from "../config/db";
 const auth = (...roles: string[]) => {
     // console.log(roles);
     return async (req: Request, res: Response, next: NextFunction) => {
-        // const header = req.headers.authorization;
-        const token = req.headers.authorization;
-        // if (!header || !header.startsWith("Bearer ")) {
-        //     return res.status(401).json({
-        //         success: false,
-        //         message: "Unauthorized: No token provided",
-        //     });
-        // }
+        const header = req.headers.authorization;
+        // const token = req.headers.authorization;
+        if (!header || !header.startsWith("Bearer ")) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized: No token provided and token start it Bearer ",
+            });
+        }
 
-        // const token = header.split(" ")[1];
+        const token = header.split(" ")[1];
 
         const decoded = jwt.verify(token as string, config.Jwt_Secret!) as JwtPayload
 
